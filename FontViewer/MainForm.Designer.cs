@@ -84,7 +84,7 @@
             this.buttonSave.TabIndex = 1;
             this.buttonSave.Text = "Save";
             this.buttonSave.UseVisualStyleBackColor = true;
-            this.buttonSave.Click += new System.EventHandler(this.OnSaveClicked);
+            this.buttonSave.Click += new System.EventHandler(this.OnSavePdfClicked);
             // 
             // buttonQuit
             // 

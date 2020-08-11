@@ -10,11 +10,42 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using iText.IO.Image;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Layout.Properties;
 
 namespace FontViewer {
     public partial class MainForm : Form {
         public MainForm() {
             InitializeComponent();
+        }
+
+        private void createPdfDemo(string fileName) {
+            System.Drawing.Image image = pictureBox.Image;
+            if (image == null) {
+                Utils.Utils.errMsg("No image");
+                return;
+            }
+            byte[] bytes = (byte[])(new ImageConverter()).ConvertTo(image, typeof(byte[]));
+            ImageData imageData = ImageDataFactory.Create(bytes);
+            iText.Layout.Element.Image pdfImage =
+                new iText.Layout.Element.Image(imageData).SetTextAlignment(TextAlignment.CENTER);
+            //ScaleAbsolute(100, 200).SetFixedPosition(1, 25, 25);
+            PdfWriter writer = new PdfWriter(fileName);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+            //Paragraph header = new Paragraph("HEADER")
+            //   .SetTextAlignment(TextAlignment.CENTER)
+            //   .SetFontSize(12);
+            //document.Add(header);
+            //Paragraph subheader = new Paragraph("SUB HEADER")
+            //   .SetTextAlignment(TextAlignment.CENTER)
+            //   .SetFontSize(10);
+            //document.Add(subheader);
+            document.Add(pdfImage);
+            document.Close();
         }
 
         private void refresh() {
@@ -79,7 +110,7 @@ namespace FontViewer {
             refresh();
         }
 
-        private void OnSaveClicked(object sender, EventArgs e) {
+        private void OnSaveImageClicked(object sender, EventArgs e) {
             if (pictureBox == null | pictureBox.Image == null) return;
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.Filter = "JPEG|*.jpg";
@@ -89,9 +120,25 @@ namespace FontViewer {
             string fileName = dlg.FileName;
             if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
                 try {
-                    pictureBox.Image.Save(dlg.FileName, ImageFormat.Jpeg);
+                    pictureBox.Image.Save(fileName, ImageFormat.Jpeg);
                 } catch (Exception ex) {
                     Utils.Utils.excMsg("Error saving JPEG", ex);
+                }
+            }
+
+        }
+        private void OnSavePdfClicked(object sender, EventArgs e) {
+            if (pictureBox == null | pictureBox.Image == null) return;
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.Filter = "PDF|*.pdf";
+            dlg.Title = "Save Image as PDF";
+            dlg.FileName = "Fonts.pdf";
+            if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+                string fileName = dlg.FileName;
+                try {
+                    createPdfDemo(fileName);
+                } catch (Exception ex) {
+                    Utils.Utils.excMsg("Error saving PDF", ex);
                 }
             }
 
