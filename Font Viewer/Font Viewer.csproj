@@ -10,4 +10,10 @@
     <PackageReference Include="itext7" Version="7.1.12" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="LICENSE">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
