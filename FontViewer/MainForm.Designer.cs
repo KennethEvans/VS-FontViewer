@@ -26,6 +26,8 @@
             this.tableLayoutPanelTop = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanelButtons = new System.Windows.Forms.FlowLayoutPanel();
             this.buttonRefresh = new System.Windows.Forms.Button();
+            this.buttonBack = new System.Windows.Forms.Button();
+            this.buttonForward = new System.Windows.Forms.Button();
             this.buttonSave = new System.Windows.Forms.Button();
             this.buttonQuit = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -50,7 +52,7 @@
             this.tableLayoutPanelTop.RowCount = 2;
             this.tableLayoutPanelTop.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanelTop.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanelTop.Size = new System.Drawing.Size(800, 790);
+            this.tableLayoutPanelTop.Size = new System.Drawing.Size(1090, 962);
             this.tableLayoutPanelTop.TabIndex = 0;
             // 
             // flowLayoutPanelButtons
@@ -59,28 +61,58 @@
             this.flowLayoutPanelButtons.AutoSize = true;
             this.flowLayoutPanelButtons.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanelButtons.Controls.Add(this.buttonRefresh);
+            this.flowLayoutPanelButtons.Controls.Add(this.buttonBack);
+            this.flowLayoutPanelButtons.Controls.Add(this.buttonForward);
             this.flowLayoutPanelButtons.Controls.Add(this.buttonSave);
             this.flowLayoutPanelButtons.Controls.Add(this.buttonQuit);
-            this.flowLayoutPanelButtons.Location = new System.Drawing.Point(109, 723);
+            this.flowLayoutPanelButtons.Location = new System.Drawing.Point(310, 902);
             this.flowLayoutPanelButtons.Name = "flowLayoutPanelButtons";
-            this.flowLayoutPanelButtons.Size = new System.Drawing.Size(582, 64);
+            this.flowLayoutPanelButtons.Size = new System.Drawing.Size(470, 57);
             this.flowLayoutPanelButtons.TabIndex = 1;
             // 
             // buttonRefresh
             // 
+            this.buttonRefresh.AutoSize = true;
+            this.buttonRefresh.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.buttonRefresh.Location = new System.Drawing.Point(3, 3);
             this.buttonRefresh.Name = "buttonRefresh";
-            this.buttonRefresh.Size = new System.Drawing.Size(188, 58);
+            this.buttonRefresh.Size = new System.Drawing.Size(126, 51);
             this.buttonRefresh.TabIndex = 0;
             this.buttonRefresh.Text = "Refresh";
             this.buttonRefresh.UseVisualStyleBackColor = true;
             this.buttonRefresh.Click += new System.EventHandler(this.OnRefreshClicked);
             // 
+            // buttonBack
+            // 
+            this.buttonBack.AutoSize = true;
+            this.buttonBack.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.buttonBack.Location = new System.Drawing.Point(135, 3);
+            this.buttonBack.Name = "buttonBack";
+            this.buttonBack.Size = new System.Drawing.Size(70, 51);
+            this.buttonBack.TabIndex = 0;
+            this.buttonBack.Text = "<<";
+            this.buttonBack.UseVisualStyleBackColor = true;
+            this.buttonBack.Click += new System.EventHandler(this.OnBackClicked);
+            // 
+            // buttonForward
+            // 
+            this.buttonForward.AutoSize = true;
+            this.buttonForward.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.buttonForward.Location = new System.Drawing.Point(211, 3);
+            this.buttonForward.Name = "buttonForward";
+            this.buttonForward.Size = new System.Drawing.Size(70, 51);
+            this.buttonForward.TabIndex = 0;
+            this.buttonForward.Text = ">>";
+            this.buttonForward.UseVisualStyleBackColor = true;
+            this.buttonForward.Click += new System.EventHandler(this.OnForwardClicked);
+            // 
             // buttonSave
             // 
-            this.buttonSave.Location = new System.Drawing.Point(197, 3);
+            this.buttonSave.AutoSize = true;
+            this.buttonSave.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.buttonSave.Location = new System.Drawing.Point(287, 3);
             this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(188, 58);
+            this.buttonSave.Size = new System.Drawing.Size(89, 51);
             this.buttonSave.TabIndex = 1;
             this.buttonSave.Text = "Save";
             this.buttonSave.UseVisualStyleBackColor = true;
@@ -88,9 +120,11 @@
             // 
             // buttonQuit
             // 
-            this.buttonQuit.Location = new System.Drawing.Point(391, 3);
+            this.buttonQuit.AutoSize = true;
+            this.buttonQuit.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.buttonQuit.Location = new System.Drawing.Point(382, 3);
             this.buttonQuit.Name = "buttonQuit";
-            this.buttonQuit.Size = new System.Drawing.Size(188, 58);
+            this.buttonQuit.Size = new System.Drawing.Size(85, 51);
             this.buttonQuit.TabIndex = 0;
             this.buttonQuit.Text = "Quit";
             this.buttonQuit.UseVisualStyleBackColor = true;
@@ -103,7 +137,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(794, 714);
+            this.panel1.Size = new System.Drawing.Size(1084, 893);
             this.panel1.TabIndex = 2;
             // 
             // pictureBox
@@ -119,13 +153,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(17F, 41F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 790);
+            this.ClientSize = new System.Drawing.Size(1090, 962);
             this.Controls.Add(this.tableLayoutPanelTop);
             this.Name = "MainForm";
             this.Text = "FontViewer";
             this.tableLayoutPanelTop.ResumeLayout(false);
             this.tableLayoutPanelTop.PerformLayout();
             this.flowLayoutPanelButtons.ResumeLayout(false);
+            this.flowLayoutPanelButtons.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
@@ -141,8 +176,10 @@
         private System.Windows.Forms.Button buttonQuit;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.PictureBox pictureBox;
-        private System.Windows.Forms.Button buttonRefresh;
+        private System.Windows.Forms.Button buttonForward;
         private System.Windows.Forms.Button buttonSave;
+        private System.Windows.Forms.Button buttonRefresh;
+        private System.Windows.Forms.Button buttonBack;
     }
 }
 

@@ -1,105 +1,139 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Drawing.Text;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using iText.IO.Image;
+﻿using iText.IO.Image;
+using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
 using iText.Layout.Properties;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Drawing.Text;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace FontViewer {
     public partial class MainForm : Form {
+        private List<Bitmap> bitmaps;
+        private int curPage;
         public MainForm() {
             InitializeComponent();
+            refresh();
         }
 
-        private void createPdfDemo(string fileName) {
-            System.Drawing.Image image = pictureBox.Image;
-            if (image == null) {
-                Utils.Utils.errMsg("No image");
+        private void savePdf(string fileName) {
+            if (bitmaps == null || bitmaps.Count == 0) {
+                Utils.Utils.errMsg("No images");
                 return;
             }
-            byte[] bytes = (byte[])(new ImageConverter()).ConvertTo(image, typeof(byte[]));
-            ImageData imageData = ImageDataFactory.Create(bytes);
-            iText.Layout.Element.Image pdfImage =
-                new iText.Layout.Element.Image(imageData).SetTextAlignment(TextAlignment.CENTER);
-            //ScaleAbsolute(100, 200).SetFixedPosition(1, 25, 25);
+            int nPages = bitmaps.Count;
             PdfWriter writer = new PdfWriter(fileName);
             PdfDocument pdf = new PdfDocument(writer);
-            Document document = new Document(pdf);
-            //Paragraph header = new Paragraph("HEADER")
-            //   .SetTextAlignment(TextAlignment.CENTER)
-            //   .SetFontSize(12);
-            //document.Add(header);
-            //Paragraph subheader = new Paragraph("SUB HEADER")
-            //   .SetTextAlignment(TextAlignment.CENTER)
-            //   .SetFontSize(10);
-            //document.Add(subheader);
-            document.Add(pdfImage);
+            // Units are points (y default)
+            float pageWidth = 8.5f * 72;
+            float pageHeight = 11.0f * 72;
+            iText.Kernel.Geom.Rectangle pagesize =
+                new iText.Kernel.Geom.Rectangle(pageWidth, pageHeight);
+            float margin = 0.5f * 72;
+            Document document = new Document(pdf, new PageSize(pagesize));
+            document.SetMargins(margin, margin, margin, margin);
+            DateTime now = DateTime.Now;
+            for (int page = 0; page < nPages; page++) {
+                // Header
+                Paragraph paragraph = new Paragraph(Environment.MachineName
+                    + " Installed Fonts"
+                    + " [" + now + "]");
+                paragraph.Add(new Tab());
+                paragraph.AddTabStops(new TabStop(1000,
+                    iText.Layout.Properties.TabAlignment.RIGHT));
+                paragraph.Add("Page " + (page + 1) + " of " + nPages);
+                paragraph.SetBold().SetTextAlignment(TextAlignment.LEFT)
+                    .SetFontSize(10);
+                document.Add(paragraph);
+
+                System.Drawing.Image image = bitmaps[page];
+                if (image == null) {
+                    Paragraph error = new Paragraph("Blank")
+                       .SetTextAlignment(TextAlignment.CENTER)
+                       .SetFontSize(12);
+                    document.Add(error);
+                } else {
+                    byte[] bytes = (byte[])(new ImageConverter())
+                        .ConvertTo(image, typeof(byte[]));
+                    ImageData imageData = ImageDataFactory.Create(bytes);
+                    iText.Layout.Element.Image pdfImage =
+                        new iText.Layout.Element.Image(imageData)
+                        .SetTextAlignment(TextAlignment.CENTER);
+                    pdfImage.ScaleToFit(pageWidth - 2 * margin, pageHeight - 2 * margin);
+                    document.Add(pdfImage);
+                }
+                if (page < nPages - 1) {
+                    document.Add(new AreaBreak());
+                }
+            }
             document.Close();
         }
 
         private void refresh() {
-            FontFamily fontFamily = new FontFamily("Arial");
-            SolidBrush solidBrush = new SolidBrush(Color.Black);
-            // 8 x 10.5 @ 300 dpi
-            int width = 2400, height = 3150;
-            Bitmap image = new Bitmap(width, height);
-            Graphics g = Graphics.FromImage(image);
-            System.Drawing.SolidBrush brush;
-            // Fill with white
-            using (brush = new SolidBrush(Color.White)) {
-                g.FillRectangle(brush, 0, 0, width, height);
-            }
-            brush = new System.Drawing.SolidBrush(System.Drawing.Color.Black);
             InstalledFontCollection installedFontCollection = new InstalledFontCollection();
             FontFamily[] fontFamilies = installedFontCollection.Families;
+            int fontSize = 40; // In pixels = 9.6 pts at 300 dpi
             int nFonts = fontFamilies.Length;
-            RectangleF rectF;
-            int nItems = nFonts;
             int defaultHeight = 50;
-            int margin = 20;
+            int margin = 75;
+            int width = 2550, height = 3150;  // 7.5" x 10.5"
             int nCols = 5;
-            int deltaY = (height - 2 * margin) / nItems;
+            int deltaY = defaultHeight;
             int deltaX = (width - 2 * margin) / nCols;
-            if (deltaY < defaultHeight) {
-                deltaY = defaultHeight;
-                nItems = (height - 2 * margin) / defaultHeight * nCols;
-            }
-            // DEBUG
-            //using (Font font = new System.Drawing.Font("Helvetica", 10)) {
-            //    rectF = new RectangleF(margin, margin, deltaX, defaultHeight);
-            //    using (brush = new SolidBrush(Color.Red)) {
-            //        g.FillRectangle(brush, rectF);
-            //    }
-            //    g.DrawString("This is a test", font, solidBrush, rectF);
-            //}
+            int itemsPerPage = (height - 2 * margin) / defaultHeight * nCols;
+            int itemsPerColumn = itemsPerPage / nCols;
+            int nPages = (int)Math.Ceiling((double)nFonts / (double)itemsPerColumn / (double)nCols);
 
-            int xOffset = 0;
-            int yOffset = 0;
-            int itemsPerColumn = nItems / nCols;
-            for (int j = 0; j < nItems; ++j) {
-                yOffset = (j % itemsPerColumn) * deltaY;
-                if (j != 0 && (j % itemsPerColumn) == 0) {
-                    xOffset += deltaX;
+            bitmaps = new List<Bitmap>();
+            for (int page = 0; page < nPages; page++) {
+                SolidBrush solidBrush = new SolidBrush(Color.Black);
+                Bitmap image = new Bitmap(width, height);
+                Graphics g = Graphics.FromImage(image);
+                System.Drawing.SolidBrush brush;
+                // Fill with white
+                using (brush = new SolidBrush(Color.White)) {
+                    g.FillRectangle(brush, 0, 0, width, height);
                 }
-                using (Font font = new System.Drawing.Font(fontFamilies[j], 10)) {
-                    rectF = new RectangleF(margin + xOffset, margin + yOffset, deltaX, deltaY);
-                    g.DrawString(fontFamilies[j].Name, font, solidBrush, rectF);
+                brush = new System.Drawing.SolidBrush(System.Drawing.Color.Black);
+                RectangleF rectF;
+
+                // DEBUG
+                //using (Font font = new System.Drawing.Font("Helvetica", fontSize)) {
+                //    rectF = new RectangleF(margin, margin, deltaX, defaultHeight);
+                //    using (brush = new SolidBrush(Color.Red)) {
+                //        g.FillRectangle(brush, rectF);
+                //    }
+                //    g.DrawString("This is a test", font, solidBrush, rectF);
+                //}
+
+                int xOffset = 0;
+                int yOffset;
+                int jStart = page * itemsPerPage;
+                int jEnd = (page + 1) * itemsPerPage;
+                if (jEnd > nFonts) jEnd = nFonts;
+                for (int j = jStart; j < jEnd; ++j) {
+                    yOffset = ((j - jStart) % itemsPerColumn) * deltaY;
+                    if (j != jStart && (j % itemsPerColumn) == 0) {
+                        xOffset += deltaX;
+                    }
+                    using (Font font = new System.Drawing.Font(fontFamilies[j], fontSize, GraphicsUnit.Pixel)) {
+                        rectF = new RectangleF(margin + xOffset, margin + yOffset, deltaX, deltaY);
+                        g.DrawString(fontFamilies[j].Name, font, solidBrush, rectF);
+                    }
+                }
+                brush.Dispose();
+                g.Dispose();
+                bitmaps.Add(image);
+                if (page == 0) {
+                    curPage = page;
+                    pictureBox.Image = image;
                 }
             }
-            brush.Dispose();
-            g.Dispose();
-            pictureBox.Image = image;
         }
 
         private void OnQuitClicked(object sender, EventArgs e) {
@@ -128,7 +162,10 @@ namespace FontViewer {
 
         }
         private void OnSavePdfClicked(object sender, EventArgs e) {
-            if (pictureBox == null | pictureBox.Image == null) return;
+            if (bitmaps == null || bitmaps.Count == 0) {
+                Utils.Utils.errMsg("No images");
+                return;
+            }
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.Filter = "PDF|*.pdf";
             dlg.Title = "Save Image as PDF";
@@ -136,12 +173,30 @@ namespace FontViewer {
             if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
                 string fileName = dlg.FileName;
                 try {
-                    createPdfDemo(fileName);
+                    savePdf(fileName);
                 } catch (Exception ex) {
                     Utils.Utils.excMsg("Error saving PDF", ex);
                 }
             }
 
+        }
+        private void OnBackClicked(object sender, EventArgs e) {
+            if (bitmaps == null || bitmaps.Count == 0) return;
+            if (curPage > 0) {
+                curPage--;
+                if (curPage < 0) curPage = 0;
+                System.Drawing.Image image = bitmaps[curPage];
+                pictureBox.Image = image;
+            }
+        }
+        private void OnForwardClicked(object sender, EventArgs e) {
+            if (bitmaps == null || bitmaps.Count == 0) return;
+            if (curPage < bitmaps.Count - 1) {
+                curPage++;
+                if (curPage >= bitmaps.Count()) curPage = bitmaps.Count - 1;
+                System.Drawing.Image image = bitmaps[curPage];
+                pictureBox.Image = image;
+            }
         }
     }
 }
