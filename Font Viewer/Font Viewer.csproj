@@ -32,6 +32,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Utils">
+      <HintPath>..\..\Utils\Utils\bin\Release\net5.0-windows\Utils.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="LICENSE">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

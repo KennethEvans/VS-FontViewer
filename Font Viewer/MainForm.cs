@@ -4,6 +4,7 @@ using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
 using iText.Layout.Properties;
+using KEUtils.Utils;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -23,7 +24,7 @@ namespace FontViewer {
 
         private void savePdf(string fileName) {
             if (bitmaps == null || bitmaps.Count == 0) {
-                Utils.Utils.errMsg("No images");
+                Utils.errMsg("No images");
                 return;
             }
             int nPages = bitmaps.Count;
@@ -156,14 +157,14 @@ namespace FontViewer {
                 try {
                     pictureBox.Image.Save(fileName, ImageFormat.Jpeg);
                 } catch (Exception ex) {
-                    Utils.Utils.excMsg("Error saving JPEG", ex);
+                    Utils.excMsg("Error saving JPEG", ex);
                 }
             }
 
         }
         private void OnSavePdfClicked(object sender, EventArgs e) {
             if (bitmaps == null || bitmaps.Count == 0) {
-                Utils.Utils.errMsg("No images");
+                Utils.errMsg("No images");
                 return;
             }
             SaveFileDialog dlg = new SaveFileDialog();
@@ -175,7 +176,7 @@ namespace FontViewer {
                 try {
                     savePdf(fileName);
                 } catch (Exception ex) {
-                    Utils.Utils.excMsg("Error saving PDF", ex);
+                    Utils.excMsg("Error saving PDF", ex);
                 }
             }
 
